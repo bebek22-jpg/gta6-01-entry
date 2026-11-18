@@ -71,6 +71,13 @@
   </div>
 </div>
 
+<script>
+  // Collects runtime errors for play-testing; harmless in normal play.
+  window.__solmarErrors = [];
+  window.addEventListener('error', function (e) {
+    window.__solmarErrors.push((e.message || 'error') + ' @ ' + (e.filename || '') + ':' + (e.lineno || ''));
+  });
+</script>
 <script src="./vendor/three.min.js"></script>
 <script type="module" src="./src/main.js"></script>
 </body>

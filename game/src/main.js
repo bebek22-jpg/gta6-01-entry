@@ -65,8 +65,9 @@ class Game {
     if (this.shotName && this.shotName !== 'start') {
       stageShot(this.shotName, this);
     }
+    window.__game = this; // play-testing hook; harmless in normal play.
     this._setScreen(this.state);
-    this._loop(performance.now());
+    this._loop();
   }
 
   _wireScreens() {
@@ -125,8 +126,7 @@ class Game {
     this.money = 250;
     this.totalEarned = 0;
     this.player.health = PLAYER_TUNING.maxHealth;
-    this.player.pos.set(-3.5, 20, 0);
-    this.player.pos.y = 0;
+    this.player.pos.set(-3.5, 0, 20);
     this.player.mesh.position.copy(this.player.pos);
     this.police.clearWanted();
     this.beginPlaying();
@@ -384,9 +384,13 @@ class Game {
     this.world.update(dt, this.time);
   }
 
-  _loop(now) {
-    requestAnimationFrame((t) => this._loop(t));
-    const dt = Math.min(0.05, (now - (this._last || now)) / 1000 || 0.016);
+  _loop() {
+    requestAnimationFrame(() => this._loop());
+    // performance.now() (not the rAF stamp): background tabs can deliver
+    // rAF stamps from a stale clock, which once ran the sim backwards.
+    const now = performance.now();
+    let dt = this._last === undefined ? 0.016 : (now - this._last) / 1000;
+    dt = Math.max(0, Math.min(0.05, dt));
     this._last = now;
     this.time += dt;
     if (this.state === 'playing') this._updatePlaying(dt);

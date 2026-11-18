@@ -138,9 +138,21 @@ export class Player {
     }
   }
 
+  // Snap the camera to its chase position at once (screenshot staging).
+  snapCamera(camera) {
+    const target = this.inCar ? this.vehicle.pos : this.pos;
+    const eyeHeight = this.inCar ? 2.2 : 1.9;
+    this.camPos.set(
+      target.x - Math.sin(this.camYaw) * Math.cos(this.camPitch) * this.camDist,
+      target.y + eyeHeight + Math.sin(this.camPitch) * this.camDist,
+      target.z - Math.cos(this.camYaw) * Math.cos(this.camPitch) * this.camDist,
+    );
+    camera.position.copy(this.camPos);
+    camera.lookAt(target.x, target.y + 1.6, target.z);
+  }
+
   // Place the camera behind the player or the car, smoothing every move.
-  updateCamera(dt, time, camera) {
-    if (this.inCar && time - this.lastDragAt > 2.5) {
+  updateCamera(dt, time, camera) {    if (this.inCar && time - this.lastDragAt > 2.5) {
       // Ease the camera behind the car's heading when the player is not dragging.
       let diff = this.vehicle.heading - this.camYaw;
       while (diff > Math.PI) diff -= Math.PI * 2;

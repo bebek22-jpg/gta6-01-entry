@@ -18,6 +18,7 @@ export function stageShot(name, game) {
     g.player.enterCar(car);
     g.player.camYaw = Math.PI;
     g.player.camPitch = 0.3;
+    g.player.snapCamera(g.camera);
     g.missions.start(0);
     g.missions.stepIndex = 2;
     g.missions._enterStep();
@@ -35,12 +36,13 @@ export function stageShot(name, game) {
     g.player.enterCar(car);
     g.player.camYaw = Math.PI;
     g.player.camPitch = 0.32;
+    g.player.snapCamera(g.camera);
     g.missions.start(2);
     g.police._spawnCar();
     g.police._spawnCar();
     g.police._spawnCar();
-    // Line the cruisers up right behind the player for the frame.
-    const spots = [[-6.5, 48, Math.PI], [0.5, 52, Math.PI], [-3.5, 62, Math.PI]];
+    // Cruisers flanking ahead and behind, all in the camera's view.
+    const spots = [[-11, 12, Math.PI], [4.5, 4, Math.PI], [-3.5, 52, Math.PI]];
     g.police.cars.forEach((cruiser, i) => {
       const [x, z, h] = spots[i % spots.length];
       cruiser.pos.set(x, 0, z);
@@ -55,12 +57,13 @@ export function stageShot(name, game) {
   if (name === 'mission') {
     // The Drop's ambush: Kai on foot, four Coral Kings ahead, objective live.
     g.beginPlaying();
-    g.player.pos.set(104, 0, -46);
-    g.player.heading = 2.36;
-    g.player.camYaw = 2.36;
+    g.player.pos.set(108, 0, -56);
+    g.player.heading = 1.89;
+    g.player.camYaw = 1.89;
     g.player.camPitch = 0.26;
     g.player.mesh.position.copy(g.player.pos);
     g.player.mesh.rotation.y = g.player.heading;
+    g.player.snapCamera(g.camera);
     g.missions.start(3);
     g.missions.stepIndex = 2;
     g.missions._enterStep();

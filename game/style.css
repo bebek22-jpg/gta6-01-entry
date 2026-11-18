@@ -118,7 +118,7 @@ body[data-screen="paused"] #hud { display: none; }
 #dialog {
   position: absolute;
   left: 50%;
-  bottom: 24px;
+  bottom: 108px;
   transform: translateX(-50%);
   width: 560px;
   max-width: 80vw;

@@ -91,7 +91,7 @@ export class Minimap {
     const [px, py] = this._toMap(state.playerX, state.playerZ);
     ctx.save();
     ctx.translate(px, py);
-    ctx.rotate(Math.atan2(state.headingX, -state.headingZ) + Math.PI);
+    ctx.rotate(Math.atan2(state.headingX, -state.headingZ));
     ctx.fillStyle = '#ffffff';
     ctx.strokeStyle = '#111111';
     ctx.lineWidth = 1;
