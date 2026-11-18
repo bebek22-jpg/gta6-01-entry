@@ -1,79 +1,71 @@
-// The screenshot scenes behind ?shot=start|play|end. Each one plays the real rules forward from a
-// fresh world for a fixed number of steps, steered by a simple autopilot (look ahead each way the
-// paddle could move, keep clear of blocks, chase the lowest coin when that is safe), so the frame
-// is what a short game really looks like and the same seed always gives the same frame.
-import { FIELD, PLAYER, STEP } from './config.js';
-import { EVENT_OVER, KIND_BLOCK } from './world.js';
-import { SCREEN_OVER, SCREEN_PLAY, SCREEN_TITLE } from './render.js';
+// Solmar Heat — the screenshot scenes behind ?shot=start|drive|chase|mission.
+// Each one stages a real game state (a car mid-drive, a live police chase, a
+// mission firefight) and lets the simulation run, so the frame is the game
+// itself, not a diorama.
 
-const START_SECONDS = 5;
-const PLAY_SECONDS = 26;
-const END_LIMIT_SECONDS = 600;
-/**
- * How far ahead, in seconds, the autopilot checks each way it could move: the play scene's pilot
- * looks well ahead and keeps all its lives; the end scene's looks only a moment ahead, so it is
- * caught out once the blocks speed up, as a hurried player is.
- */
-const HORIZON_PLAY = 0.7;
-const HORIZON_END = 0.25;
-const SAMPLE = 1 / 30;
-const DIRECTIONS = [0, -1, 1];
-/** Extra room, each side, it keeps between the paddle and a block. */
-const MARGIN = 10;
-
-/** Seconds until moving in `direction` (-1, 0, 1) runs the paddle into a block; Infinity when it never does. */
-function timeToHit(state, direction, horizon) {
-  const player = state.player;
-  for (let t = SAMPLE; t <= horizon; t += SAMPLE) {
-    const x = Math.min(FIELD.width - player.width, Math.max(0, player.x + direction * PLAYER.speed * t));
-    for (let index = 0; index < state.items.length; index += 1) {
-      const item = state.items[index];
-      if (!item.active || item.kind !== KIND_BLOCK) continue;
-      const y = item.y + item.speed * t;
-      if (y + item.height > player.y && y < player.y + player.height && item.x < x + player.width + MARGIN && item.x + item.width > x - MARGIN) return t;
-    }
+export function stageShot(name, game) {
+  const g = game;
+  if (name === 'drive') {
+    // Mid-city drive: Kai in a red sportscar on Coral Ave, traffic around,
+    // mission one on the HUD.
+    g.beginPlaying();
+    const car = g.parkedCars.find((c) => c.kind === 'sport') || g.parkedCars[0];
+    car.pos.set(3.5, 0, 60);
+    car.heading = Math.PI;
+    car.speed = 19;
+    car.mesh.position.copy(car.pos);
+    car.mesh.rotation.y = car.heading;
+    g.player.enterCar(car);
+    g.player.camYaw = Math.PI;
+    g.player.camPitch = 0.3;
+    g.missions.start(0);
+    g.missions.stepIndex = 2;
+    g.missions._enterStep();
+    return;
   }
-  return Infinity;
-}
-
-/** Of the safe ways to move, the one toward the lowest coin (or the centre); else the one that is hit last. */
-function autopilot(state, horizon) {
-  const player = state.player;
-  let coin = null;
-  for (let index = 0; index < state.items.length; index += 1) {
-    const item = state.items[index];
-    if (item.active && item.kind !== KIND_BLOCK && (coin === null || item.y > coin.y)) coin = item;
+  if (name === 'chase') {
+    // Three stars, three cruisers on the tail, Heat Run on the HUD.
+    g.beginPlaying();
+    const car = g.parkedCars.find((c) => c.kind === 'sport') || g.parkedCars[0];
+    car.pos.set(-3.5, 0, 30);
+    car.heading = Math.PI;
+    car.speed = 26;
+    car.mesh.position.copy(car.pos);
+    car.mesh.rotation.y = car.heading;
+    g.player.enterCar(car);
+    g.player.camYaw = Math.PI;
+    g.player.camPitch = 0.32;
+    g.missions.start(2);
+    g.police._spawnCar();
+    g.police._spawnCar();
+    g.police._spawnCar();
+    // Line the cruisers up right behind the player for the frame.
+    const spots = [[-6.5, 48, Math.PI], [0.5, 52, Math.PI], [-3.5, 62, Math.PI]];
+    g.police.cars.forEach((cruiser, i) => {
+      const [x, z, h] = spots[i % spots.length];
+      cruiser.pos.set(x, 0, z);
+      cruiser.heading = h;
+      cruiser.speed = 24;
+      cruiser.mesh.position.copy(cruiser.pos);
+      cruiser.mesh.rotation.y = h;
+    });
+    g.peds.panic(-3.5, 40, 8);
+    return;
   }
-  const target = coin === null ? FIELD.width / 2 : coin.x + coin.width / 2;
-  const centre = player.x + player.width / 2;
-  const wanted = target > centre + 8 ? 1 : target < centre - 8 ? -1 : 0;
-  let best = wanted;
-  let bestTime = timeToHit(state, wanted, horizon);
-  for (let index = 0; index < DIRECTIONS.length && bestTime !== Infinity; index += 1) {
-    const time = timeToHit(state, DIRECTIONS[index], horizon);
-    if (time > bestTime) {
-      bestTime = time;
-      best = DIRECTIONS[index];
-    }
+  if (name === 'mission') {
+    // The Drop's ambush: Kai on foot, four Coral Kings ahead, objective live.
+    g.beginPlaying();
+    g.player.pos.set(104, 0, -46);
+    g.player.heading = 2.36;
+    g.player.camYaw = 2.36;
+    g.player.camPitch = 0.26;
+    g.player.mesh.position.copy(g.player.pos);
+    g.player.mesh.rotation.y = g.player.heading;
+    g.missions.start(3);
+    g.missions.stepIndex = 2;
+    g.missions._enterStep();
+    g.money = 640;
+    return;
   }
-  return best;
-}
-
-/**
- * Set `world` to the named scene (start, play or end; any other name is start) and return the
- * screen to draw over it and the best score to show.
- */
-export function stageShot(name, world) {
-  world.reset();
-  if (name !== 'play' && name !== 'end') {
-    for (let index = 0; index < START_SECONDS / STEP; index += 1) world.step(STEP, 0, true);
-    return { screen: SCREEN_TITLE, best: 0 };
-  }
-  const limit = name === 'end' ? END_LIMIT_SECONDS : PLAY_SECONDS;
-  const horizon = name === 'end' ? HORIZON_END : HORIZON_PLAY;
-  for (let index = 0; index < limit / STEP; index += 1) {
-    if (world.step(STEP, autopilot(world.state, horizon), false) & EVENT_OVER) break;
-  }
-  const over = world.state.lives === 0;
-  return { screen: over ? SCREEN_OVER : SCREEN_PLAY, best: world.state.score };
+  // 'start' and anything else: the title screen over the living city.
 }

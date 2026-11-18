@@ -1,0 +1,220 @@
+/* Solmar Heat — HUD, menus and screens. Dark glass panels over the 3D city,
+   warm amber accents, big readable type at a glance. */
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #0b141c;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #f5f0e1;
+  user-select: none;
+}
+
+#game {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+/* ---------- HUD ---------- */
+
+#hud { position: fixed; inset: 0; pointer-events: none; }
+body[data-screen="title"] #hud,
+body[data-screen="paused"] #hud { display: none; }
+
+#objective {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  max-width: 640px;
+  padding: 10px 18px;
+  background: rgba(10, 18, 26, 0.72);
+  border: 1px solid rgba(255, 210, 63, 0.55);
+  border-left: 5px solid #ffd23f;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 0.3px;
+  text-align: center;
+  display: none;
+}
+
+#top-right { position: absolute; top: 16px; right: 18px; text-align: right; }
+
+#money {
+  font-size: 30px;
+  font-weight: bold;
+  color: #7ee787;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+}
+
+#stars { font-size: 26px; letter-spacing: 3px; margin-top: 2px; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8); }
+#stars .star { color: rgba(255, 255, 255, 0.28); }
+#stars .star.lit { color: #ffd23f; }
+#stars.hot .star.lit { color: #ff5a4e; animation: starpulse 0.8s infinite alternate; }
+@keyframes starpulse { from { opacity: 1; } to { opacity: 0.55; } }
+
+#health-bar {
+  width: 170px;
+  height: 12px;
+  margin-top: 6px;
+  margin-left: auto;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  overflow: hidden;
+}
+#health-fill { height: 100%; width: 100%; background: #7ee787; transition: width 0.2s; }
+#health-fill.low { background: #ff5a4e; }
+
+#bottom-left { position: absolute; left: 18px; bottom: 18px; }
+#minimap {
+  display: block;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+}
+#clock-row {
+  margin-top: 8px;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  text-shadow: 0 2px 5px rgba(0, 0, 0, 0.9);
+}
+#clock { font-size: 22px; font-weight: bold; }
+#location { font-size: 14px; color: #ffd9a0; }
+
+#bottom-right { position: absolute; right: 18px; bottom: 18px; text-align: right; }
+#speed {
+  font-size: 34px;
+  font-weight: bold;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+  display: none;
+}
+#help {
+  margin-top: 6px;
+  font-size: 12px;
+  color: rgba(245, 240, 225, 0.75);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+#crosshair {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+  display: none;
+}
+
+#dialog {
+  position: absolute;
+  left: 50%;
+  bottom: 24px;
+  transform: translateX(-50%);
+  width: 560px;
+  max-width: 80vw;
+  padding: 12px 18px;
+  background: rgba(10, 18, 26, 0.82);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  display: none;
+}
+#dialog-speaker { font-size: 13px; font-weight: bold; color: #ffd23f; letter-spacing: 1px; margin-bottom: 4px; }
+#dialog-text { font-size: 17px; line-height: 1.35; }
+
+#banner {
+  position: absolute;
+  left: 50%;
+  top: 34%;
+  transform: translateX(-50%);
+  text-align: center;
+  display: none;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.9);
+}
+#banner-title { font-size: 52px; font-weight: bold; letter-spacing: 4px; color: #ffd23f; }
+#banner-sub { font-size: 19px; margin-top: 6px; }
+
+/* ---------- Screens ---------- */
+
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+}
+.screen .btn { pointer-events: auto; }
+
+#screen-title {
+  background: linear-gradient(90deg, rgba(8, 14, 22, 0.92) 0%, rgba(8, 14, 22, 0.72) 42%, rgba(8, 14, 22, 0.05) 78%);
+}
+.title-panel { width: 520px; max-width: 92vw; padding: 0 48px; }
+.title-kicker { font-size: 13px; font-weight: bold; letter-spacing: 4px; color: #ffd23f; }
+#title-name {
+  margin: 10px 0 6px;
+  font-size: 76px;
+  line-height: 0.95;
+  letter-spacing: 2px;
+  background: linear-gradient(180deg, #fff6d8 20%, #ffb03a 80%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: none;
+  filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.7));
+}
+.title-tag { font-size: 17px; line-height: 1.5; color: #e8e0cc; margin: 10px 0 22px; }
+.title-buttons { display: flex; gap: 12px; margin-bottom: 22px; }
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 18px;
+  font-size: 13px;
+  color: #cfc8b4;
+  margin-bottom: 18px;
+}
+.controls-grid b { color: #ffffff; }
+.title-foot { font-size: 12px; color: rgba(230, 222, 196, 0.6); line-height: 1.5; }
+
+#screen-pause, #screen-end {
+  background: rgba(8, 14, 22, 0.72);
+  justify-content: center;
+}
+.panel {
+  text-align: center;
+  background: rgba(12, 20, 30, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 12px;
+  padding: 36px 54px;
+}
+.panel h2 { margin: 0 0 8px; font-size: 44px; letter-spacing: 4px; }
+.panel-sub { color: #cfc8b4; margin: 0 0 22px; }
+.panel .btn { display: block; width: 100%; margin: 8px auto; }
+.end-panel h2 { font-size: 64px; color: #ff5a4e; }
+#end-sub { font-size: 17px; color: #e8e0cc; margin: 6px 0 4px; }
+#wasted-note { font-size: 13px; color: rgba(230, 222, 196, 0.6); margin: 0 0 20px; }
+
+.btn {
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  color: #f5f0e1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 6px;
+  padding: 13px 26px;
+  cursor: pointer;
+}
+.btn:hover { background: rgba(255, 255, 255, 0.22); }
+.btn.primary { background: #e8960f; border-color: #ffd23f; color: #1a1206; }
+.btn.primary:hover { background: #ffb03a; }
